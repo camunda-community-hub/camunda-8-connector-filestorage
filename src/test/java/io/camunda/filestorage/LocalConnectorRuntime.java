@@ -1,4 +1,4 @@
-package io.camunda.connector;
+package io.camunda.filestorage;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
