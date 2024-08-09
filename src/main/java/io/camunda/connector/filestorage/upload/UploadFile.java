@@ -166,11 +166,11 @@ public class UploadFile implements FileStorageSubFunction {
                 + e);
       }
       fileStorageOutput.fileName = fileVariable.getName();
-      fileStorageOutput.fileMimeType = fileVariable.getMimeType();
+      fileStorageOutput.fileMimeTypeLoaded = fileVariable.getMimeType();
     } else {
       fileStorageOutput.fileLoaded = null;
       fileStorageOutput.fileName = null;
-      fileStorageOutput.fileMimeType = null;
+      fileStorageOutput.fileMimeTypeLoaded = null;
     }
 
     //------ Policy after operation Definition
