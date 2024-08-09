@@ -38,13 +38,10 @@ import java.util.Map;
 
 public class UploadFile implements FileStorageSubFunction {
 
-  private final Logger logger = LoggerFactory.getLogger(UploadFile.class.getName());
-
-
   public static final String GROUP_SOURCE = "Source";
   public static final String GROUP_PROCESS_FILE = "Process file";
   public static final String GROUP_STORAGE_DEFINITION = "Storage definition";
-
+  private final Logger logger = LoggerFactory.getLogger(UploadFile.class.getName());
 
   public UploadFile() {
   }
@@ -62,53 +59,37 @@ public class UploadFile implements FileStorageSubFunction {
     return "upload";
   }
 
-
   @Override
   public FileStorageOutput executeSubFunction(FileStorageInput input,
                                               OutboundConnectorContext outboundConnectorContext) {
 
-    File folder = FileStorageToolbox.getFolderFileFromName(input.getInputFolder());
-    String fileName = input.getFileName();
-    String filterFile = input.getFilterFile();
-    String policy = input.getInputPolicy();
-    String storageDefinitionSt = input.getStorageDefinition();
-    StorageDefinition storageDefinition = null;
-
-    try {
-      // with a template, the storage definition is just the droptdown value, so add the complement if present
-      storageDefinition = StorageDefinition.getFromString(storageDefinitionSt);
-      String storageDefinitionFolderComplement = input.getStorageDefinitionFolderCompletement();
-      if (storageDefinitionFolderComplement != null && !storageDefinitionFolderComplement.trim().isEmpty())
-        storageDefinition.complement = storageDefinitionFolderComplement;
-
-      storageDefinition.complementInObject = input.getGetInputStoragedefinitionCmisComplement();
-    } catch (Exception e) {
-      String cmisComplementSt = input.getGetInputStoragedefinitionCmisComplement();
-
-      logger.error("Can't get the CMIS information- bad Gson value :" + cmisComplementSt);
-      throw new ConnectorException(FileStorageError.BPMNERROR_INCORRECT_CMIS_PARAMETERS,
-          "Worker [" + getSubFunctionName() + "] Cmis information" + cmisComplementSt);
-
-    }
-
-    File archiveFolder = FileStorageToolbox.getFolderFileFromName(input.getArchiveFolder());
+    StringBuilder traceExecution = new StringBuilder();
+    traceExecution.append("---UploadFile:");
 
     FileVariable fileVariable = null;
 
+    // ------------ source folder
+    File folder = FileStorageToolbox.getFolderFileFromName(input.getFolderToRead());
     if (folder == null) {
-      String folderName = input.getInputFolder();
+      String folderName = input.getFolderToRead();
       String currentPath = null;
       try {
         currentPath = new File(".").getCanonicalPath();
       } catch (IOException e) {
         // This sould never arrive
       }
-      logger.error(
-          getSubFunctionName() + ": folder[" + folderName + "] does not exist (current local folder is [" + currentPath
-              + "])");
+      logger.error("Folder[{}] does not exist (current local folder is [{}] {}", folderName, currentPath,
+          traceExecution);
       throw new ConnectorException(FileStorageError.BPMNERROR_FOLDER_NOT_EXIST,
           "Worker [" + getSubFunctionName() + "] folder[" + folderName + "] does not exist");
     }
+    traceExecution.append("Folder:[");
+    traceExecution.append(folder.getAbsolutePath());
+    traceExecution.append("], ");
+
+    // list of files to process
+    String filterFile = input.getFilterFile();
+    String fileName = input.getFileName();
     List<File> listFilesFiltered;
     File fileToProcess = null;
     if (folder.listFiles() == null) {
@@ -124,12 +105,14 @@ public class UploadFile implements FileStorageSubFunction {
         return t.getName().matches(filterFile);
       }).toList();
     }
+    FileStorageOutput fileStorageOutput = new FileStorageOutput();
     if (listFilesFiltered.isEmpty()) {
-      logger.info(
-          getSubFunctionName() + ": folder [" + folder.getAbsolutePath() + "] does not have any matching file " + (
-              fileName != null ?
-                  "fileName[" + fileName + "]" :
-                  "FilterFile[" + filterFile + "]"));
+      traceExecution.append(" Folder Does not have any matching file. Filename[");
+      traceExecution.append(fileName);
+      traceExecution.append("] FilterFile[");
+      traceExecution.append(filterFile);
+      traceExecution.append("], ");
+      fileStorageOutput.nbFilesProcessed = 0;
     } else {
       // load the first file only
       fileToProcess = listFilesFiltered.get(0);
@@ -143,24 +126,41 @@ public class UploadFile implements FileStorageSubFunction {
         fis.read(content);
         fileVariable.setValue(content);
       } catch (Exception e) {
-        logger.error(getSubFunctionName() + ": cannot read file[" + fileToProcess.getAbsolutePath() + "] : " + e);
+        logger.error("Cannot read file[{}] {} : {}", fileToProcess.getAbsolutePath(), traceExecution, e);
         throw new ConnectorException(FileStorageError.BPMNERROR_LOAD_FILE_ERROR,
             "Worker [" + getSubFunctionName() + "]  cannot read file[" + fileToProcess.getAbsolutePath() + "] : " + e);
       }
+      traceExecution.append("Read FileName[");
+      traceExecution.append(fileToProcess.getName());
+      traceExecution.append("] size[");
+      traceExecution.append(fileToProcess.length());
+      traceExecution.append("], ");
     }
 
-    // output
-    FileStorageOutput fileStorageOutput = new FileStorageOutput();
+    //------ Storage Definition
+    // Move to the FileStorage
+    StorageDefinition storageDefinition = input.getStorageDefinitionObject();
+    // Move to the file storage
+    traceExecution.append("Move to FileStorage[");
+    traceExecution.append(storageDefinition.getInformation());
+    traceExecution.append("]");
+
     if (fileVariable != null) {
       try {
         fileVariable.setStorageDefinition(storageDefinition);
         FileRepoFactory fileRepoFactory = FileRepoFactory.getInstance();
 
+        long beginOperation = System.currentTimeMillis();
         FileVariableReference fileVariableReference = fileRepoFactory.saveFileVariable(fileVariable);
+        traceExecution.append(" in ");
+        traceExecution.append(System.currentTimeMillis() - beginOperation);
+        traceExecution.append(" ms, ");
 
         fileStorageOutput.fileLoaded = fileVariableReference.toJson();
+        fileStorageOutput.nbFilesProcessed++;
+
       } catch (Exception e) {
-        logger.error("Error during setFileVariableReference: " + e);
+        logger.error("Error during setFileVariableReference: {} : {} ", traceExecution, e);
         throw new ConnectorException(FileStorageError.BPMNERROR_SAVE_FILEVARIABLE,
             "Worker [" + getSubFunctionName() + "] error during access storageDefinition[" + storageDefinition + "] :"
                 + e);
@@ -173,6 +173,14 @@ public class UploadFile implements FileStorageSubFunction {
       fileStorageOutput.fileMimeType = null;
     }
 
+    //------ Policy after operation Definition
+    // Apply the policy
+    File archiveFolder = FileStorageToolbox.getFolderFileFromName(input.getArchiveFolder());
+    String policy = input.getPolicy();
+    traceExecution.append("PolicyArchive[");
+    traceExecution.append(policy);
+    traceExecution.append("]");
+
     if (fileToProcess != null) {
       // according to the policy, move the file
       if (FileStorageInput.POLICY_V_UNCHANGE.equals(policy)) {
@@ -180,6 +188,9 @@ public class UploadFile implements FileStorageSubFunction {
       } else if (FileStorageInput.POLICY_V_DELETE.equals(policy)) {
         fileToProcess.delete();
       } else if (FileStorageInput.POLICY_V_ARCHIVE.equals(policy)) {
+        traceExecution.append("ArchiveFolder[");
+        traceExecution.append(archiveFolder);
+        traceExecution.append("] ");
         if (archiveFolder == null) {
           // Can't archive the file, archive folder does not exist
           String archiveFolderName = input.getArchiveFolder();
@@ -188,9 +199,8 @@ public class UploadFile implements FileStorageSubFunction {
             currentPath = new File(".").getCanonicalPath();
           } catch (IOException e) {
           }
-          logger.error(
-              getSubFunctionName() + ": folder[" + archiveFolderName + "] does not exist (current local folder is ["
-                  + currentPath + "])");
+          logger.error("Folder[{}] does not exist (current local folder is [{}] {}", archiveFolderName, currentPath,
+              traceExecution);
           throw new ConnectorException(FileStorageError.BPMNERROR_FOLDER_NOT_EXIST,
               "Worker [" + getSubFunctionName() + "] folder[" + folder.getAbsolutePath() + "] does not exist");
 
@@ -203,22 +213,24 @@ public class UploadFile implements FileStorageSubFunction {
           // if target exists, throws FileAlreadyExistsException
           Files.move(source, target);
         } catch (Exception e) {
-          logger.error(
-              getSubFunctionName() + ": cannot apply the policy[" + policy + "] from source[" + source + "] to ["
-                  + target + "] : " + e);
+          logger.error("Cannot apply policy [{}] from source[{}] to [{}] {} : {}", policy, source, target,
+              traceExecution, e);
           throw new ConnectorException(FileStorageError.BPMNERROR_MOVE_FILE_ERROR,
               "Worker [" + getSubFunctionName() + "] cannot apply the policy[" + policy + "] from source[" + source
                   + "] to [" + target + "] : " + e);
         }
+      } else {
+        logger.error("Unknown Policy [{}] {}", policy, traceExecution);
       }
     }
+    logger.info(traceExecution.toString());
     return fileStorageOutput;
   }
 
   public List<FileRunnerParameter> getInputsParameter() {
     return Arrays.asList(
 
-        (FileRunnerParameter) new FileRunnerParameter(FileStorageInput.INPUT_FOLDER, // name
+        (FileRunnerParameter) new FileRunnerParameter(FileStorageInput.INPUT_FOLDER_TO_READ, // name
             "Folder", // label
             String.class, // class
             RunnerParameter.Level.REQUIRED, // level
@@ -249,13 +261,14 @@ public class UploadFile implements FileStorageSubFunction {
             .setGroup(GROUP_PROCESS_FILE),
 
         (FileRunnerParameter) new FileRunnerParameter(FileStorageInput.INPUT_ARCHIVE_FOLDER, "Archive folder",
-            String.class, RunnerParameter.Level.OPTIONAL, // level
+            String.class, RunnerParameter.Level.REQUIRED, // level
             "With the policy " + FileStorageInput.POLICY_V_ARCHIVE + ". File is moved in this folder.", 1).addCondition(
                 FileStorageInput.INPUT_POLICY, Collections.singletonList(FileStorageInput.POLICY_V_ARCHIVE))
-            .setGroup(GROUP_PROCESS_FILE),
+            .setGroup(GROUP_PROCESS_FILE)
+            .addCondition(FileStorageInput.INPUT_POLICY, Collections.singletonList(FileStorageInput.POLICY_V_ARCHIVE)),
 
         (FileRunnerParameter) new FileRunnerParameter(FileStorageInput.INPUT_STORAGEDEFINITION, "Storage definition",
-            String.class, RunnerParameter.Level.OPTIONAL,
+            String.class, RunnerParameter.Level.REQUIRED,
             // level
             "How to saved the FileVariable. " + StorageDefinition.StorageDefinitionType.JSON
                 + " to save in the engine (size is linited), " + StorageDefinition.StorageDefinitionType.TEMPFOLDER
@@ -271,20 +284,19 @@ public class UploadFile implements FileStorageSubFunction {
             .setGroup(GROUP_STORAGE_DEFINITION),
 
         (FileRunnerParameter) new FileRunnerParameter(FileStorageInput.INPUT_STORAGEDEFINITION_FOLDER_COMPLEMENT,
-            "Folder Storage definition Complement", String.class, // class
-            RunnerParameter.Level.OPTIONAL, // level
-            "Complement to the Storage definition, if needed. " + StorageDefinition.StorageDefinitionType.FOLDER
-                + ": please provide the folder to save the file", 1).addCondition(
-                FileStorageInput.INPUT_STORAGEDEFINITION,
+            "FOLDER Storage definition Complement", String.class, // class
+            RunnerParameter.Level.REQUIRED, // level
+            "Provide the FOLDER path on the server", 1)// explanation
+            .addCondition(FileStorageInput.INPUT_STORAGEDEFINITION,
                 Collections.singletonList(StorageDefinition.StorageDefinitionType.FOLDER.toString()))
             .setGroup(GROUP_STORAGE_DEFINITION),
 
         (FileRunnerParameter) new FileRunnerParameter(FileStorageInput.INPUT_STORAGEDEFINITION_CMIS_COMPLEMENT, // name
             "CMIS Storage definition Complement", // label
             Object.class, // type
-            RunnerParameter.Level.OPTIONAL, // level
+            RunnerParameter.Level.REQUIRED, // level
             "Complement to the Storage definition, if needed. " + StorageDefinition.StorageDefinitionType.FOLDER
-                + ": please provide the folder to save the file") // parameter
+                + ": please provide the folder to save the file", 1) // parameter
             .setGsonTemplate(CmisParameters.getGsonTemplate()) // add Gson Template
             .addCondition(FileStorageInput.INPUT_STORAGEDEFINITION,
                 Collections.singletonList(StorageDefinition.StorageDefinitionType.CMIS.toString()))
@@ -300,11 +312,15 @@ public class UploadFile implements FileStorageSubFunction {
             RunnerParameter.Level.OPTIONAL, "Name of the file"),
 
         new FileRunnerParameter(FileStorageOutput.OUTPUT_FILE_MIMETYPE, "File Mime type", String.class,
-            RunnerParameter.Level.OPTIONAL, "MimeType of the loaded file"));
+            RunnerParameter.Level.OPTIONAL, "MimeType of the loaded file"),
+
+        new FileRunnerParameter(FileStorageOutput.OUTPUT_NB_FILES_PROCESSED, "Nb files processed", String.class,
+            RunnerParameter.Level.OPTIONAL, "Number of files processed. May be 1 or 0 (no file found)"));
   }
 
   public Map<String, String> getBpmnErrors() {
-    return Map.of(FileStorageError.BPMNERROR_FOLDER_NOT_EXIST,FileStorageError.BPMNERROR_FOLDER_NOT_EXIST_EXPL, // error
+    return Map.of(FileStorageError.BPMNERROR_FOLDER_NOT_EXIST, FileStorageError.BPMNERROR_FOLDER_NOT_EXIST_EXPL,
+        // error
 
         FileStorageError.BPMNERROR_LOAD_FILE_ERROR, FileStorageError.BPMNERROR_LOAD_FILE_ERROR_EXPL,
 
@@ -312,7 +328,8 @@ public class UploadFile implements FileStorageSubFunction {
 
         FileStorageError.ERROR_INCORRECT_STORAGEDEFINITION, FileStorageError.ERROR_INCORRECT_STORAGEDEFINITION_EXPL,
 
-        FileStorageError.BPMNERROR_INCORRECT_CMIS_PARAMETERS, FileStorageError.BPMNERROR_INCORRECT_CMIS_PARAMETERS_EXPL);
+        FileStorageError.BPMNERROR_INCORRECT_CMIS_PARAMETERS,
+        FileStorageError.BPMNERROR_INCORRECT_CMIS_PARAMETERS_EXPL);
 
   }
 

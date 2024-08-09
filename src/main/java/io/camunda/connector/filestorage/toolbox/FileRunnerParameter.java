@@ -7,8 +7,8 @@ import java.util.List;
 
 public class FileRunnerParameter extends RunnerParameter {
 
-  private int priority;
   private final List<String> listRegisteredType = new ArrayList<>();
+  private int priority;
 
   public FileRunnerParameter(String name,
                              String label,

@@ -34,7 +34,11 @@ public interface CherryInput {
   String PARAMETER_MAP_CHOICE_LIST_DISPLAY_NAME = "displayName";
   String PARAMETER_MAP_VISIBLE_IN_TEMPLATE = "visibleInTemplate";
   /* use 'optional' or empty (empty is translate to optional) */ String PARAMETER_MAP_FEEL = "feel";
-  String PARAMETER_MAP_GROUP = "group";
+
+  String PARAMETER_MAP_GROUP_ID = "groupId";
+  String PARAMETER_MAP_GROUP_LABEL = "groupLabel";
+
+  String PARAMETER_APPLIES_V_SERVICETASK = "bpmn:ServiceTask";
 
   /**
    * get the list of Input Parameters
