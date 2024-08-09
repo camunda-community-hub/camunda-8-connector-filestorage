@@ -64,7 +64,12 @@ public class DownloadFile implements FileStorageSubFunction {
       traceExecution.append("load fileReference [");
       traceExecution.append(fileVariableReference);
       traceExecution.append("]");
-
+    } catch (Exception e) {
+      throw new ConnectorException(FileStorageError.BPMNERROR_ACCESS_FILEVARIABLE,
+          "Worker [" + getSubFunctionName() + "] error during access fileVariableReference[" + input.getSourceFile()
+              + "] :" + e);
+    }
+    try {
       FileRepoFactory fileRepoFactory = FileRepoFactory.getInstance();
       fileVariable = fileRepoFactory.loadFileVariable(fileVariableReference);
       traceExecution.append("load file [");
@@ -73,9 +78,8 @@ public class DownloadFile implements FileStorageSubFunction {
 
     } catch (Exception e) {
       logger.error("Can't read file[{}] {} : {}", fileVariableReference, traceExecution, e);
-      throw new ConnectorException(FileStorageError.BPMNERROR_ACCESS_FILEVARIABLE,
-          "Worker [" + getSubFunctionName() + "] error during access fileVariableReference[" + input.getSourceFile()
-              + "] :" + e);
+      throw new ConnectorException(FileStorageError.BPMNERROR_INCORRECT_FILESTORAGE,
+          "Worker [" + getSubFunctionName() + "] FileReference[" + fileVariableReference.content + "] can't access");
     }
     if (fileVariable == null) {
       logger.error("Input file variable does not exist {}", traceExecution);
@@ -143,17 +147,19 @@ public class DownloadFile implements FileStorageSubFunction {
 
   public List<FileRunnerParameter> getOutputsParameter() {
     return Arrays.asList(
-        new FileRunnerParameter(FileStorageOutput.OUTPUT_FILE_IS_DONWLOADED, "File downloaded", Object.class,
+        new FileRunnerParameter(FileStorageOutput.OUTPUT_FILE_IS_DOWNLOADED, "File downloaded", Boolean.class,
             RunnerParameter.Level.REQUIRED, "True if the file is correctly downloaded"),
         new FileRunnerParameter(FileStorageOutput.OUTPUT_FILE_NAME, "File name downloaded", String.class,
             RunnerParameter.Level.OPTIONAL, "File name of the file downloaded"),
-        new FileRunnerParameter(FileStorageOutput.OUTPUT_NB_FILES_PROCESSED, "Nv files processed", String.class,
-            RunnerParameter.Level.OPTIONAL, "Number of file processed. May be 1 or 0 (no file found)"));
+        new FileRunnerParameter(FileStorageOutput.OUTPUT_NB_FILES_PROCESSED, "Nv files processed", Integer.class,
+            RunnerParameter.Level.REQUIRED, "Number of file processed. May be 1 or 0 (no file found)"));
 
   }
 
   public Map<String, String> getBpmnErrors() {
     return Map.of(FileStorageError.BPMNERROR_ACCESS_FILEVARIABLE, FileStorageError.BPMNERROR_ACCESS_FILEVARIABLE_EXPL,
+
+        FileStorageError.BPMNERROR_INCORRECT_FILESTORAGE, FileStorageError.BPMNERROR_INCORRECT_FILESTORAGE_EXPL,
 
         FileStorageError.BPMNERROR_LOAD_FILE_ERROR, FileStorageError.BPMNERROR_LOAD_FILE_ERROR_EXPL,
 

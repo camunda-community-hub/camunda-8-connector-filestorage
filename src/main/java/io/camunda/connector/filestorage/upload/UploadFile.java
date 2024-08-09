@@ -276,9 +276,12 @@ public class UploadFile implements FileStorageSubFunction {
                 + " to specify a folder to save it (to be accessible by multiple machine if you ruin it in a cluster"
                 + StorageDefinition.StorageDefinitionType.CMIS + " to specify a CMIS connection", 1).addChoice("JSON",
                 StorageDefinition.StorageDefinitionType.JSON.toString())
-            .addChoice("TEMPFOLDER", StorageDefinition.StorageDefinitionType.TEMPFOLDER.toString())
-            .addChoice("FOLDER", StorageDefinition.StorageDefinitionType.FOLDER.toString())
-            .addChoice("CMIS", StorageDefinition.StorageDefinitionType.CMIS.toString())
+            .addChoice(StorageDefinition.StorageDefinitionType.TEMPFOLDER.toString(),
+                StorageDefinition.StorageDefinitionType.TEMPFOLDER.toString())
+            .addChoice(StorageDefinition.StorageDefinitionType.FOLDER.toString(),
+                StorageDefinition.StorageDefinitionType.FOLDER.toString())
+            .addChoice(StorageDefinition.StorageDefinitionType.CMIS.toString(),
+                StorageDefinition.StorageDefinitionType.CMIS.toString())
             .setVisibleInTemplate()
             .setDefaultValue(StorageDefinition.StorageDefinitionType.JSON.toString())
             .setGroup(GROUP_STORAGE_DEFINITION),
@@ -311,7 +314,7 @@ public class UploadFile implements FileStorageSubFunction {
         new FileRunnerParameter(FileStorageOutput.OUTPUT_FILE_NAME, "File name", String.class,
             RunnerParameter.Level.OPTIONAL, "Name of the file"),
 
-        new FileRunnerParameter(FileStorageOutput.OUTPUT_FILE_MIMETYPE, "File Mime type", String.class,
+        new FileRunnerParameter(FileStorageOutput.OUTPUT_FILE_MIMETYPE_LOADED, "File Mime type", String.class,
             RunnerParameter.Level.OPTIONAL, "MimeType of the loaded file"),
 
         new FileRunnerParameter(FileStorageOutput.OUTPUT_NB_FILES_PROCESSED, "Nb files processed", String.class,
@@ -328,8 +331,7 @@ public class UploadFile implements FileStorageSubFunction {
 
         FileStorageError.ERROR_INCORRECT_STORAGEDEFINITION, FileStorageError.ERROR_INCORRECT_STORAGEDEFINITION_EXPL,
 
-        FileStorageError.BPMNERROR_INCORRECT_CMIS_PARAMETERS,
-        FileStorageError.BPMNERROR_INCORRECT_CMIS_PARAMETERS_EXPL);
+        FileStorageError.BPMNERROR_BAD_CMIS_PARAMETERS, FileStorageError.BPMNERROR_BAD_CMIS_PARAMETERS_EXPL);
 
   }
 

@@ -20,8 +20,8 @@ public class FileStorageError {
   public static final String BPMNERROR_MOVE_FILE_ERROR = "MOVE_FILE_ERROR";
   public static final String BPMNERROR_MOVE_FILE_ERROR_EXPL = "Error when the file is moved to the archive directory";
 
-  public static final String BPMNERROR_INCORRECT_CMIS_PARAMETERS = "Incorrect CMIS Parameters";
-  public static final String BPMNERROR_INCORRECT_CMIS_PARAMETERS_EXPL = "GSON expected to get information to connect the repository";
+  public static final String BPMNERROR_BAD_CMIS_PARAMETERS = "BAD_CMIS_PARAMETER";
+  public static final String BPMNERROR_BAD_CMIS_PARAMETERS_EXPL = "GSON expected to get information to connect the repository";
 
   public static final String BPMNERROR_SAVE_FILEVARIABLE = "SAVE_FILEVARIABLE";
 

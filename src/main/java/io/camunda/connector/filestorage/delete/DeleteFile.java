@@ -88,10 +88,10 @@ public class DeleteFile implements FileStorageSubFunction {
   }
 
   public List<FileRunnerParameter> getOutputsParameter() {
-    return Arrays.asList(new FileRunnerParameter(FileStorageOutput.OUTPUT_FILE_IS_PURGED, "File purged", Object.class,
+    return Arrays.asList(new FileRunnerParameter(FileStorageOutput.OUTPUT_FILE_IS_PURGED, "File purged", Boolean.class,
             RunnerParameter.Level.REQUIRED, "True if the file is correctly purge, or didn't exist"),
-        new FileRunnerParameter(FileStorageOutput.OUTPUT_NB_FILES_PROCESSED, "Nb files processed", String.class,
-            RunnerParameter.Level.OPTIONAL, "Number of files processed. May be 1 or 0 (no file found)"));
+        new FileRunnerParameter(FileStorageOutput.OUTPUT_NB_FILES_PROCESSED, "Nb files processed", Integer.class,
+            RunnerParameter.Level.REQUIRED, "Number of files processed. May be 1 or 0 (no file found)"));
 
   }
 
