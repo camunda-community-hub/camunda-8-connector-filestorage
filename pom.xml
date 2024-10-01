@@ -19,7 +19,7 @@
 
     <!-- connector SDK version -->
     <version.connector-core>8.5.4</version.connector-core>
-    <version.connector-runtime>8.5.4</version.connector-runtime>
+    <version.connector-runtime>8.6.0</version.connector-runtime>
 
     <version.opensagres>2.0.4</version.opensagres>
     <version.filestorage>1.3.0</version.filestorage>
