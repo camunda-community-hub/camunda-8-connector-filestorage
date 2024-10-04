@@ -7,9 +7,10 @@
   <groupId>io.camunda.connector</groupId>
   <artifactId>filestorage</artifactId>
   <packaging>jar</packaging>
-  <!-- 1.0.0 First version -->
 
-  <version>1.0.0</version>
+  <!-- 1.0.0 First version -->
+  <!-- 1.0.1 Remove FileRunnerParameter  -->
+  <version>1.0.1</version>
 
   <properties>
     <maven.compiler.release>17</maven.compiler.release>

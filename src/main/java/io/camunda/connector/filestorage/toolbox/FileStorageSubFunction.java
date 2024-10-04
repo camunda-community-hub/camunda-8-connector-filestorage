@@ -2,6 +2,7 @@ package io.camunda.connector.filestorage.toolbox;
 
 import io.camunda.connector.api.error.ConnectorException;
 import io.camunda.connector.api.outbound.OutboundConnectorContext;
+import io.camunda.connector.cherrytemplate.RunnerParameter;
 import io.camunda.connector.filestorage.FileStorageInput;
 import io.camunda.connector.filestorage.FileStorageOutput;
 
@@ -12,9 +13,9 @@ public interface FileStorageSubFunction {
   FileStorageOutput executeSubFunction(FileStorageInput pdfInput, OutboundConnectorContext context)
       throws ConnectorException;
 
-  List<FileRunnerParameter> getInputsParameter();
+  List<RunnerParameter> getInputsParameter();
 
-  List<FileRunnerParameter> getOutputsParameter();
+  List<RunnerParameter> getOutputsParameter();
 
   Map<String, String> getBpmnErrors();
 

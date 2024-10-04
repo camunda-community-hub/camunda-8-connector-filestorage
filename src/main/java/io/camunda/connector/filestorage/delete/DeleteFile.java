@@ -12,7 +12,6 @@ import io.camunda.connector.cherrytemplate.RunnerParameter;
 import io.camunda.connector.filestorage.FileStorageError;
 import io.camunda.connector.filestorage.FileStorageInput;
 import io.camunda.connector.filestorage.FileStorageOutput;
-import io.camunda.connector.filestorage.toolbox.FileRunnerParameter;
 import io.camunda.connector.filestorage.toolbox.FileStorageSubFunction;
 import io.camunda.filestorage.FileRepoFactory;
 import io.camunda.filestorage.FileVariableReference;
@@ -82,16 +81,22 @@ public class DeleteFile implements FileStorageSubFunction {
     return output;
   }
 
-  public List<FileRunnerParameter> getInputsParameter() {
-    return List.of(new FileRunnerParameter(FileStorageInput.INPUT_SOURCE_FILE, "Source file", String.class,
-        RunnerParameter.Level.REQUIRED, "FileVariable used to delete", 1));
+  public List<RunnerParameter> getInputsParameter() {
+    return List.of(RunnerParameter.getInstance(FileStorageInput.INPUT_SOURCE_FILE, "Source file", String.class,
+        RunnerParameter.Level.REQUIRED, "FileVariable used to delete"));
   }
 
-  public List<FileRunnerParameter> getOutputsParameter() {
-    return Arrays.asList(new FileRunnerParameter(FileStorageOutput.OUTPUT_FILE_IS_PURGED, "File purged", Boolean.class,
-            RunnerParameter.Level.REQUIRED, "True if the file is correctly purge, or didn't exist"),
-        new FileRunnerParameter(FileStorageOutput.OUTPUT_NB_FILES_PROCESSED, "Nb files processed", Integer.class,
-            RunnerParameter.Level.REQUIRED, "Number of files processed. May be 1 or 0 (no file found)"));
+  public List<RunnerParameter> getOutputsParameter() {
+    return Arrays.asList(RunnerParameter.getInstance(FileStorageOutput.OUTPUT_FILE_IS_PURGED, //
+            "File purged", //
+            Boolean.class, //
+            RunnerParameter.Level.REQUIRED, //
+            "True if the file is correctly purge, or didn't exist"),
+        RunnerParameter.getInstance(FileStorageOutput.OUTPUT_NB_FILES_PROCESSED, //
+            "Nb files processed", //
+            Integer.class, //
+            RunnerParameter.Level.REQUIRED, //
+            "Number of files processed. May be 1 or 0 (no file found)"));
 
   }
 
