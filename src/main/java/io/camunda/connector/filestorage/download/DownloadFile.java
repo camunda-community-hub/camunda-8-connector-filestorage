@@ -14,7 +14,6 @@ import io.camunda.connector.cherrytemplate.RunnerParameter;
 import io.camunda.connector.filestorage.FileStorageError;
 import io.camunda.connector.filestorage.FileStorageInput;
 import io.camunda.connector.filestorage.FileStorageOutput;
-import io.camunda.connector.filestorage.toolbox.FileRunnerParameter;
 import io.camunda.connector.filestorage.toolbox.FileStorageSubFunction;
 import io.camunda.connector.filestorage.upload.UploadFile;
 import io.camunda.filestorage.FileRepoFactory;
@@ -124,47 +123,43 @@ public class DownloadFile implements FileStorageSubFunction {
     return output;
   }
 
-  public List<FileRunnerParameter> getInputsParameter() {
-    return Arrays.asList(new FileRunnerParameter(FileStorageInput.INPUT_SOURCE_FILE,// name
+  public List<RunnerParameter> getInputsParameter() {
+    return Arrays.asList( RunnerParameter.getInstance(FileStorageInput.INPUT_SOURCE_FILE,// name
             "Source file", // label
             String.class, // type
             RunnerParameter.Level.REQUIRED, // level
-            "FileVariable used to save locally", 1),
+            "FileVariable used to save locally"),
 
-        new FileRunnerParameter(FileStorageInput.INPUT_FOLDER_TO_SAVE,// name
+        RunnerParameter.getInstance(FileStorageInput.INPUT_FOLDER_TO_SAVE,// name
             "Folder to save the file", // label
             String.class, // type
             RunnerParameter.Level.REQUIRED,// level
-            "Folder to save the file", 1),
+            "Folder to save the file"),
 
-        new FileRunnerParameter(FileStorageInput.INPUT_FILE_NAME_TOWRITE, // name
+        RunnerParameter.getInstance(FileStorageInput.INPUT_FILE_NAME_TOWRITE, // name
             "File name of the new file",// label
             String.class,// type
             RunnerParameter.Level.OPTIONAL, // level
-            "Name of the file to write. If no value is given, the name of the file in the store is used", 1));
+            "Name of the file to write. If no value is given, the name of the file in the store is used"));
 
   }
 
-  public List<FileRunnerParameter> getOutputsParameter() {
+  public List<RunnerParameter> getOutputsParameter() {
     return Arrays.asList(
-        new FileRunnerParameter(FileStorageOutput.OUTPUT_FILE_IS_DOWNLOADED, "File downloaded", Boolean.class,
+        RunnerParameter.getInstance(FileStorageOutput.OUTPUT_FILE_IS_DOWNLOADED, "File downloaded", Boolean.class,
             RunnerParameter.Level.REQUIRED, "True if the file is correctly downloaded"),
-        new FileRunnerParameter(FileStorageOutput.OUTPUT_FILE_NAME, "File name downloaded", String.class,
+        RunnerParameter.getInstance(FileStorageOutput.OUTPUT_FILE_NAME, "File name downloaded", String.class,
             RunnerParameter.Level.OPTIONAL, "File name of the file downloaded"),
-        new FileRunnerParameter(FileStorageOutput.OUTPUT_NB_FILES_PROCESSED, "Nv files processed", Integer.class,
+        RunnerParameter.getInstance(FileStorageOutput.OUTPUT_NB_FILES_PROCESSED, "Nv files processed", Integer.class,
             RunnerParameter.Level.REQUIRED, "Number of file processed. May be 1 or 0 (no file found)"));
 
   }
 
   public Map<String, String> getBpmnErrors() {
-    return Map.of(FileStorageError.BPMNERROR_ACCESS_FILEVARIABLE, FileStorageError.BPMNERROR_ACCESS_FILEVARIABLE_EXPL,
-
-        FileStorageError.BPMNERROR_INCORRECT_FILESTORAGE, FileStorageError.BPMNERROR_INCORRECT_FILESTORAGE_EXPL,
-
-        FileStorageError.BPMNERROR_LOAD_FILE_ERROR, FileStorageError.BPMNERROR_LOAD_FILE_ERROR_EXPL,
-
-        FileStorageError.BPMNERROR_FOLDER_NOT_EXIST, FileStorageError.BPMNERROR_FOLDER_NOT_EXIST_EXPL,
-
+    return Map.of(FileStorageError.BPMNERROR_ACCESS_FILEVARIABLE, FileStorageError.BPMNERROR_ACCESS_FILEVARIABLE_EXPL, //
+        FileStorageError.BPMNERROR_INCORRECT_FILESTORAGE, FileStorageError.BPMNERROR_INCORRECT_FILESTORAGE_EXPL, //
+        FileStorageError.BPMNERROR_LOAD_FILE_ERROR, FileStorageError.BPMNERROR_LOAD_FILE_ERROR_EXPL, //
+        FileStorageError.BPMNERROR_FOLDER_NOT_EXIST, FileStorageError.BPMNERROR_FOLDER_NOT_EXIST_EXPL, //
         FileStorageError.BPMNERROR_WRITE_FILE_ERROR, FileStorageError.BPMNERROR_WRITE_FILE_ERROR_EXPL);
 
   }

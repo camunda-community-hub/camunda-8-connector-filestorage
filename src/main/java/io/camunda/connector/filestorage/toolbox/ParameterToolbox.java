@@ -38,12 +38,13 @@ public class ParameterToolbox {
    */
   private static List<Map<String, Object>> getParameters(boolean inputParameters) {
 
-    List<FileRunnerParameter> pdfParametersCollectList = new ArrayList<>();
+    List<RunnerParameter> pdfParametersCollectList = new ArrayList<>();
     logger.info("getParameters input? {}", inputParameters);
 
     // add the "choose the function" parameters
-    FileRunnerParameter chooseFunction = new FileRunnerParameter(FileStorageInput.INPUT_FILESTORAGEFUNCTION,
-        "FileStorage Function", String.class, RunnerParameter.Level.REQUIRED, "Choose the function to execute", 0);
+    RunnerParameter chooseFunction = new RunnerParameter(FileStorageInput.INPUT_FILESTORAGEFUNCTION,
+        "FileStorage Function", String.class, RunnerParameter.Level.REQUIRED, "Choose the function to execute");
+    chooseFunction.setAttribute("priority", -1);
 
     // add the input only at the INPUT parameters
     if (inputParameters) {
@@ -53,13 +54,15 @@ public class ParameterToolbox {
     // We keep a list of parameters per type. Then, we will add a condition according the type
     Map<String, List<String>> parameterPerFunction = new HashMap<>();
 
+    List<String> listTypes = new ArrayList<>();
+
     //  now, we collect all functions, and for each function, we collect parameters
     for (Class<?> classFunction : FileStorageFunction.allFunctions) {
       try {
         Constructor<?> constructor = classFunction.getConstructor();
         FileStorageSubFunction inputSubFunction = (FileStorageSubFunction) constructor.newInstance();
 
-        List<FileRunnerParameter> subFunctionsParametersList = inputParameters ?
+        List<RunnerParameter> subFunctionsParametersList = inputParameters ?
             inputSubFunction.getInputsParameter() :
             inputSubFunction.getOutputsParameter();
 
@@ -68,31 +71,30 @@ public class ParameterToolbox {
             inputSubFunction.getSubFunctionName(), inputSubFunction.getSubFunctionType(),
             subFunctionsParametersList.size());
 
-        for (FileRunnerParameter parameter : subFunctionsParametersList) {
+        for (RunnerParameter parameter : subFunctionsParametersList) {
 
           // one parameter may be used by multiple functions, and we want to create only one, but play on condition to show it
-          Optional<FileRunnerParameter> parameterInList = pdfParametersCollectList.stream()
+          Optional<RunnerParameter> parameterInList = pdfParametersCollectList.stream()
               .filter(t -> t.getName().equals(parameter.getName()))
               .findFirst();
           if (parameterInList.isEmpty()) {
-            parameter.addRegisteredType(inputSubFunction.getSubFunctionType());
+            listTypes.add(inputSubFunction.getSubFunctionType());
             // We search where to add this parameter. It is at the end of the group with the same priority
             int positionToAdd = 0;
-            for (FileRunnerParameter indexParameter : pdfParametersCollectList) {
-              if (indexParameter.getPriority() <= parameter.getPriority())
+            for (RunnerParameter indexParameter : pdfParametersCollectList) {
+              if (indexParameter.getAttributeInteger("priority", 0) <= parameter.getAttributeInteger("priority", 0))
                 positionToAdd++;
             }
             pdfParametersCollectList.add(positionToAdd, parameter);
             logger.info("  check parameter[{}.{}] : New Add at [{}] newSize[{}] - registered in[{}]",
                 inputSubFunction.getSubFunctionName(), parameter.getName(), positionToAdd,
-                pdfParametersCollectList.size(), parameter.getListRegisteredType());
+                pdfParametersCollectList.size(), parameter.getAttribute("ret"));
             // Already exist
           } else {
             // Register this function in that parameter
-            parameterInList.get().addRegisteredType(inputSubFunction.getSubFunctionType());
+            listTypes.add(inputSubFunction.getSubFunctionType());
             logger.info("  check parameter[{}.{}] : Already exist - registered in[{}]",
-                inputSubFunction.getSubFunctionName(), parameter.getName(),
-                parameterInList.get().getListRegisteredType());
+                inputSubFunction.getSubFunctionName(), parameter.getName(), inputSubFunction.getSubFunctionType());
           }
         }
 
@@ -103,13 +105,13 @@ public class ParameterToolbox {
 
     // Now, build the list from all parameters collected
     // We add a condition for each parameter
-    for (FileRunnerParameter parameter : pdfParametersCollectList) {
+    for (RunnerParameter parameter : pdfParametersCollectList) {
 
       // There is an explicit condition: do not override it
       if (parameter.getCondition() != null)
         continue;
 
-      List<String> listFunctionForThisParameter = parameter.getListRegisteredType();
+      List<String> listFunctionForThisParameter = listTypes;
       if (listFunctionForThisParameter == null || listFunctionForThisParameter.isEmpty()
           || listFunctionForThisParameter.size() == FileStorageFunction.allFunctions.size()) {
         logger.info("parameter [{}] Register in NO or ALL functions", parameter.getName());

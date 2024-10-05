@@ -217,6 +217,30 @@ public class RunnerParameter {
   public Level getLevel() {
     return level;
   }
+
+
+  /* -------------------------------------------------------- */
+  /*                                                          */
+  /*  Attributes                                                */
+  /* to facilitate the parameter management, connector can    */
+  /* manage private attributes
+  /*                                                          */
+  /* -------------------------------------------------------- */
+  private Map<String,Object> attributes= new HashMap<>();
+  public void setAttribute(String name, Object value) {
+
+    attributes.put(name, value);
+  }
+  public Object getAttribute(String name) {
+    return attributes.get(name);
+  }
+  public int getAttributeInteger(String name, int defaultValue) {
+    if (attributes.get(name) instanceof Integer attributInteger)
+      return attributInteger.intValue();
+    return defaultValue;
+  }
+
+
   /* -------------------------------------------------------- */
   /*                                                          */
   /*  Conditions                                              */

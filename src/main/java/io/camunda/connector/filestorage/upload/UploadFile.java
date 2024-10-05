@@ -14,7 +14,6 @@ import io.camunda.connector.cherrytemplate.RunnerParameter;
 import io.camunda.connector.filestorage.FileStorageError;
 import io.camunda.connector.filestorage.FileStorageInput;
 import io.camunda.connector.filestorage.FileStorageOutput;
-import io.camunda.connector.filestorage.toolbox.FileRunnerParameter;
 import io.camunda.connector.filestorage.toolbox.FileStorageSubFunction;
 import io.camunda.connector.filestorage.toolbox.FileStorageToolbox;
 import io.camunda.filestorage.FileRepoFactory;
@@ -227,55 +226,58 @@ public class UploadFile implements FileStorageSubFunction {
     return fileStorageOutput;
   }
 
-  public List<FileRunnerParameter> getInputsParameter() {
+  public List<RunnerParameter> getInputsParameter() {
     return Arrays.asList(
 
-        (FileRunnerParameter) new FileRunnerParameter(FileStorageInput.INPUT_FOLDER_TO_READ, // name
-            "Folder", // label
-            String.class, // class
-            RunnerParameter.Level.REQUIRED, // level
-            "Specify the folder where the file will be loaded. Must be visible from the server.", 1).setGroup(
-            GROUP_SOURCE),
+        RunnerParameter.getInstance(FileStorageInput.INPUT_FOLDER_TO_READ, // name
+                "Folder", // label
+                String.class, // class
+                RunnerParameter.Level.REQUIRED, // level
+                "Specify the folder where the file will be loaded. Must be visible from the server.") //
+            .setGroup(GROUP_SOURCE),
 
-        (FileRunnerParameter) new FileRunnerParameter(FileStorageInput.INPUT_FILE_NAME, // name
-            "File name", // label
-            String.class, // class
-            RunnerParameter.Level.OPTIONAL, // level
-            "Specify a file name, else the first file in the folder will be loaded", 1).setGroup(GROUP_SOURCE),
+        RunnerParameter.getInstance(FileStorageInput.INPUT_FILE_NAME, // name
+                "File name", // label
+                String.class, // class
+                RunnerParameter.Level.OPTIONAL, // level
+                "Specify a file name, else the first file in the folder will be loaded") //
+            .setGroup(GROUP_SOURCE),
 
-        (FileRunnerParameter) new FileRunnerParameter(FileStorageInput.INPUT_FILTER_FILE, "Filter file", String.class,
-            // class
-            RunnerParameter.Level.OPTIONAL, // level
-            "If you didn't specify a fileName, a filter to select only part of files present in the folder",
-            1).setDefaultValue("*.*").setGroup(GROUP_SOURCE),
+        RunnerParameter.getInstance(FileStorageInput.INPUT_FILTER_FILE, "Filter file", String.class,
+                // class
+                RunnerParameter.Level.OPTIONAL, // level
+                "If you didn't specify a fileName, a filter to select only part of files present in the folder") //
+            .setDefaultValue("*.*") //
+            .setGroup(GROUP_SOURCE),
 
-        (FileRunnerParameter) new FileRunnerParameter(FileStorageInput.INPUT_POLICY, "Policy", String.class,
-            RunnerParameter.Level.OPTIONAL,
-            // level
-            "Policy to manipulate the file after loading. With " + FileStorageInput.POLICY_V_ARCHIVE
-                + ", the folder archive must be specify", 1).addChoice(FileStorageInput.POLICY_V_DELETE, "Delete")
+        RunnerParameter.getInstance(FileStorageInput.INPUT_POLICY, "Policy", String.class,
+                RunnerParameter.Level.OPTIONAL,
+                // level
+                "Policy to manipulate the file after loading. With " + FileStorageInput.POLICY_V_ARCHIVE
+                    + ", the folder archive must be specify") //
+            .addChoice(FileStorageInput.POLICY_V_DELETE, "Delete")
             .addChoice(FileStorageInput.POLICY_V_ARCHIVE, "Archive")
             .addChoice(FileStorageInput.POLICY_V_UNCHANGE, "Unchange")
             .setVisibleInTemplate()
             .setDefaultValue(FileStorageInput.POLICY_V_UNCHANGE)
             .setGroup(GROUP_PROCESS_FILE),
 
-        (FileRunnerParameter) new FileRunnerParameter(FileStorageInput.INPUT_ARCHIVE_FOLDER, "Archive folder",
-            String.class, RunnerParameter.Level.REQUIRED, // level
-            "With the policy " + FileStorageInput.POLICY_V_ARCHIVE + ". File is moved in this folder.", 1).addCondition(
-                FileStorageInput.INPUT_POLICY, Collections.singletonList(FileStorageInput.POLICY_V_ARCHIVE))
+        RunnerParameter.getInstance(FileStorageInput.INPUT_ARCHIVE_FOLDER, "Archive folder", String.class,
+                RunnerParameter.Level.REQUIRED, // level
+                "With the policy " + FileStorageInput.POLICY_V_ARCHIVE + ". File is moved in this folder.") //
+            .addCondition(FileStorageInput.INPUT_POLICY, Collections.singletonList(FileStorageInput.POLICY_V_ARCHIVE))
             .setGroup(GROUP_PROCESS_FILE)
             .addCondition(FileStorageInput.INPUT_POLICY, Collections.singletonList(FileStorageInput.POLICY_V_ARCHIVE)),
 
-        (FileRunnerParameter) new FileRunnerParameter(FileStorageInput.INPUT_STORAGEDEFINITION, "Storage definition",
-            String.class, RunnerParameter.Level.REQUIRED,
-            // level
-            "How to saved the FileVariable. " + StorageDefinition.StorageDefinitionType.JSON
-                + " to save in the engine (size is linited), " + StorageDefinition.StorageDefinitionType.TEMPFOLDER
-                + " to use the temporary folder of THIS machine" + StorageDefinition.StorageDefinitionType.FOLDER
-                + " to specify a folder to save it (to be accessible by multiple machine if you ruin it in a cluster"
-                + StorageDefinition.StorageDefinitionType.CMIS + " to specify a CMIS connection", 1).addChoice("JSON",
-                StorageDefinition.StorageDefinitionType.JSON.toString())
+        RunnerParameter.getInstance(FileStorageInput.INPUT_STORAGEDEFINITION, "Storage definition", String.class,
+                RunnerParameter.Level.REQUIRED,
+                // level
+                "How to saved the FileVariable. " + StorageDefinition.StorageDefinitionType.JSON
+                    + " to save in the engine (size is linited), " + StorageDefinition.StorageDefinitionType.TEMPFOLDER
+                    + " to use the temporary folder of THIS machine" + StorageDefinition.StorageDefinitionType.FOLDER
+                    + " to specify a folder to save it (to be accessible by multiple machine if you ruin it in a cluster"
+                    + StorageDefinition.StorageDefinitionType.CMIS + " to specify a CMIS connection") //
+            .addChoice("JSON", StorageDefinition.StorageDefinitionType.JSON.toString())
             .addChoice(StorageDefinition.StorageDefinitionType.TEMPFOLDER.toString(),
                 StorageDefinition.StorageDefinitionType.TEMPFOLDER.toString())
             .addChoice(StorageDefinition.StorageDefinitionType.FOLDER.toString(),
@@ -286,52 +288,58 @@ public class UploadFile implements FileStorageSubFunction {
             .setDefaultValue(StorageDefinition.StorageDefinitionType.JSON.toString())
             .setGroup(GROUP_STORAGE_DEFINITION),
 
-        (FileRunnerParameter) new FileRunnerParameter(FileStorageInput.INPUT_STORAGEDEFINITION_FOLDER_COMPLEMENT,
-            "FOLDER Storage definition Complement", String.class, // class
-            RunnerParameter.Level.REQUIRED, // level
-            "Provide the FOLDER path on the server", 1)// explanation
+        RunnerParameter.getInstance(FileStorageInput.INPUT_STORAGEDEFINITION_FOLDER_COMPLEMENT,
+                "FOLDER Storage definition Complement", String.class, // class
+                RunnerParameter.Level.REQUIRED, // level
+                "Provide the FOLDER path on the server")// explanation
             .addCondition(FileStorageInput.INPUT_STORAGEDEFINITION,
                 Collections.singletonList(StorageDefinition.StorageDefinitionType.FOLDER.toString()))
             .setGroup(GROUP_STORAGE_DEFINITION),
 
-        (FileRunnerParameter) new FileRunnerParameter(FileStorageInput.INPUT_STORAGEDEFINITION_CMIS_COMPLEMENT, // name
-            "CMIS Storage definition Complement", // label
-            Object.class, // type
-            RunnerParameter.Level.REQUIRED, // level
-            "Complement to the Storage definition, if needed. " + StorageDefinition.StorageDefinitionType.FOLDER
-                + ": please provide the folder to save the file", 1) // parameter
+        RunnerParameter.getInstance(FileStorageInput.INPUT_STORAGEDEFINITION_CMIS_COMPLEMENT, // name
+                "CMIS Storage definition Complement", // label
+                Object.class, // type
+                RunnerParameter.Level.REQUIRED, // level
+                "Complement to the Storage definition, if needed. " + StorageDefinition.StorageDefinitionType.FOLDER
+                    + ": please provide the folder to save the file") // parameter
             .setGsonTemplate(CmisParameters.getGsonTemplate()) // add Gson Template
             .addCondition(FileStorageInput.INPUT_STORAGEDEFINITION,
                 Collections.singletonList(StorageDefinition.StorageDefinitionType.CMIS.toString()))
             .setGroup(GROUP_STORAGE_DEFINITION));
   }
 
-  public List<FileRunnerParameter> getOutputsParameter() {
-    return Arrays.asList(new FileRunnerParameter(FileStorageOutput.OUTPUT_FILE_LOADED, "File loaded", Object.class,
-            RunnerParameter.Level.REQUIRED,
+  public List<RunnerParameter> getOutputsParameter() {
+    return Arrays.asList(RunnerParameter.getInstance(FileStorageOutput.OUTPUT_FILE_LOADED, //
+            "File loaded", //
+            Object.class, //
+            RunnerParameter.Level.REQUIRED, //
             "Name of the variable to save the file loaded.Content depend of the storage definition"),
 
-        new FileRunnerParameter(FileStorageOutput.OUTPUT_FILE_NAME, "File name", String.class,
-            RunnerParameter.Level.OPTIONAL, "Name of the file"),
+        RunnerParameter.getInstance(FileStorageOutput.OUTPUT_FILE_NAME, //
+            "File name", //
+            String.class, //
+            RunnerParameter.Level.OPTIONAL,  //
+            "Name of the file"),
 
-        new FileRunnerParameter(FileStorageOutput.OUTPUT_FILE_MIMETYPE_LOADED, "File Mime type", String.class,
-            RunnerParameter.Level.OPTIONAL, "MimeType of the loaded file"),
+        RunnerParameter.getInstance(FileStorageOutput.OUTPUT_FILE_MIMETYPE_LOADED, //
+            "File Mime type", //
+            String.class, //
+            RunnerParameter.Level.OPTIONAL, //
+            "MimeType of the loaded file"),
 
-        new FileRunnerParameter(FileStorageOutput.OUTPUT_NB_FILES_PROCESSED, "Nb files processed", String.class,
-            RunnerParameter.Level.OPTIONAL, "Number of files processed. May be 1 or 0 (no file found)"));
+        RunnerParameter.getInstance(FileStorageOutput.OUTPUT_NB_FILES_PROCESSED, //
+            "Nb files processed", //
+            String.class, //
+            RunnerParameter.Level.OPTIONAL, //
+            "Number of files processed. May be 1 or 0 (no file found)"));
   }
 
   public Map<String, String> getBpmnErrors() {
-    return Map.of(FileStorageError.BPMNERROR_FOLDER_NOT_EXIST, FileStorageError.BPMNERROR_FOLDER_NOT_EXIST_EXPL,
-        // error
-
-        FileStorageError.BPMNERROR_LOAD_FILE_ERROR, FileStorageError.BPMNERROR_LOAD_FILE_ERROR_EXPL,
-
-        FileStorageError.BPMNERROR_MOVE_FILE_ERROR, FileStorageError.BPMNERROR_MOVE_FILE_ERROR_EXPL,
-
-        FileStorageError.ERROR_INCORRECT_STORAGEDEFINITION, FileStorageError.ERROR_INCORRECT_STORAGEDEFINITION_EXPL,
-
-        FileStorageError.BPMNERROR_BAD_CMIS_PARAMETERS, FileStorageError.BPMNERROR_BAD_CMIS_PARAMETERS_EXPL);
+    return Map.of(FileStorageError.BPMNERROR_FOLDER_NOT_EXIST, FileStorageError.BPMNERROR_FOLDER_NOT_EXIST_EXPL, // error
+        FileStorageError.BPMNERROR_LOAD_FILE_ERROR, FileStorageError.BPMNERROR_LOAD_FILE_ERROR_EXPL, //
+        FileStorageError.BPMNERROR_MOVE_FILE_ERROR, FileStorageError.BPMNERROR_MOVE_FILE_ERROR_EXPL, //
+        FileStorageError.ERROR_INCORRECT_STORAGEDEFINITION, FileStorageError.ERROR_INCORRECT_STORAGEDEFINITION_EXPL, //
+        FileStorageError.BPMNERROR_BAD_CMIS_PARAMETERS, FileStorageError.BPMNERROR_BAD_CMIS_PARAMETERS_EXPL); //
 
   }
 
