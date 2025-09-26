@@ -6,26 +6,40 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 
 public class FileStorageToolbox {
-  private final static Logger logger = LoggerFactory.getLogger(FileStorageToolbox.class.getName());
+    private final static Logger logger = LoggerFactory.getLogger(FileStorageToolbox.class.getName());
 
-  public static File getFolderFileFromName(String folderName) {
-    if (folderName == null)
-      return null;
-    if (folderName.startsWith(".")) {
-      try {
-        String currentPath = new File(".").getCanonicalPath();
-        folderName = currentPath + folderName.substring(1);
-      } catch (Exception e) {
-        // Can't get the local path
-        logger.error("Can't get local path and folder start with [.] {} : {}", folderName, e);
-      }
+    public static File getFolderFileFromName(String folderName) {
+        if (folderName == null)
+            return null;
+        if (folderName.startsWith(".")) {
+            try {
+                String currentPath = new File(".").getCanonicalPath();
+                folderName = currentPath + folderName.substring(1);
+            } catch (Exception e) {
+                // Can't get the local path
+                logger.error("Can't get local path and folder start with [.] {} : {}", folderName, e);
+            }
+        }
+        String folderSimpleName = folderName.replace("\\\"", "").replace("\\", "/").trim();
+        File folder = new File(folderSimpleName);
+        if (!(folder.exists() && folder.isDirectory())) {
+            return null;
+        }
+        return folder;
     }
-    String folderSimpleName = folderName.replace("\\\"", "").replace("\\", "/").trim();
-    File folder = new File(folderSimpleName);
-    if (!(folder.exists() && folder.isDirectory())) {
-      return null;
+
+
+    /**
+     * Keep the trace compact
+     *
+     * @param traceExecution string builder to add
+     * @param label          label
+     * @param value          value
+     */
+    public static void traceValue(StringBuilder traceExecution, String label, Object value) {
+        traceExecution.append(label + "[");
+        traceExecution.append(value);
+        traceExecution.append("];");
     }
-    return folder;
-  }
 
 }

@@ -22,7 +22,7 @@ The first parameter give the function (upload, download, delete). Other depends 
 
 # Storage definition
 
-Check the libary https://github.com/camunda-community-hub/zebee-filestorage
+Check the library https://github.com/camunda-community-hub/zebee-filestorage
 Multiple storage are accessible (local folder, CMIS). The storage defintion give information to
 connect to the repository.
 Then, additional information may be asked: if the repository is a folder, then the path to the
@@ -45,7 +45,7 @@ The Storage definition give information on the Storage.
 ## Principle
 
 A file is read locally, or from a URL, and is loaded in the file storage.
-The Storage definition give information on the Storage.
+The Storage definition gives information on the Storage.
 
 ## Inputs
 
@@ -59,6 +59,7 @@ The Storage definition give information on the Storage.
 | storageDefinition                 | JSON, TEMPFOLDER, FOLDER, CMIS Storage definition to store the file           | java.lang.String | JSON    | REQUIRED |
 | storageDefinitionFolderComplement | If the storage is a Folder, the path to the folder                            | java.lang.String |         | REQUIRED |
 | storageDefinitionCmisComplement   | if the storage is a CMUS repository, informatoin to connect to the repository | java.lang.String |         | REQUIRED |
+| jsonStorageDefinition             | Give the definition of the storage in JSON                                    | java.lang.String |         | REQUIRED |
 
 ## Output
 
@@ -133,6 +134,40 @@ Delete a file in the Storage.
 |------------------|-------------------------------------------------------|-------------------|----------|
 | fileIsPurged     | True if the file is correctly purged, or didn't exist | java.lang.Boolean | REQUIRED |
 | nbFilesProcessed | Nb files processed                                    | java.lang.Integer | REQUIRED | 
+
+## BPMN Errors
+
+| Name                        | Explanation                              |
+|-----------------------------|------------------------------------------|
+| ACCESS_FILEVARIABLE         | Given file variable is not a Gson format |
+| INCORRECT_STORAGEDEFINITION | Storage definition is incorrect          |
+
+
+# Copy
+
+Copy a file from a storage to another storage
+
+
+![Copy File.png](doc/CopyFile.png)
+
+## Principle
+
+## Inputs
+
+| Name                              | Description    | Class            | Default | Level    |
+|-----------------------------------|----------------|------------------|---------|----------|
+| sourceFile                        | File reference | java.lang.String |         | REQUIRED |
+| storageDefinition                 | JSON, TEMPFOLDER, FOLDER, CMIS Storage definition to store the file           | java.lang.String | JSON    | REQUIRED |
+| storageDefinition                 | JSON, TEMPFOLDER, FOLDER, CMIS Storage definition to store the file           | java.lang.String | JSON    | REQUIRED |
+| storageDefinitionFolderComplement | If the storage is a Folder, the path to the folder                            | java.lang.String |         | REQUIRED |
+| storageDefinitionCmisComplement   | if the storage is a CMUS repository, informatoin to connect to the repository | java.lang.String |         | REQUIRED |
+| jsonStorageDefinition             | Give the definition of the storage in JSON                                    | java.lang.String |         | REQUIRED |
+
+## Output
+
+| Name               | Description                           | Class             | Level     |
+|--------------------|---------------------------------------|-------------------|-----------|
+| fileLoaded         | the File Reference to the file        | java.lang.String  | REQUIRED  |
 
 ## BPMN Errors
 

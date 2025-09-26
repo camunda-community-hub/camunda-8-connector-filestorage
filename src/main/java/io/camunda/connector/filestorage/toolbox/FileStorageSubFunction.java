@@ -10,19 +10,19 @@ import java.util.List;
 import java.util.Map;
 
 public interface FileStorageSubFunction {
-  FileStorageOutput executeSubFunction(FileStorageInput pdfInput, OutboundConnectorContext context)
-      throws ConnectorException;
+    FileStorageOutput executeSubFunction(FileStorageInput pdfInput, OutboundConnectorContext context)
+            throws ConnectorException;
 
-  List<RunnerParameter> getInputsParameter();
+    List<RunnerParameter> getInputsParameter();
 
-  List<RunnerParameter> getOutputsParameter();
+    List<RunnerParameter> getOutputsParameter();
 
-  Map<String, String> getBpmnErrors();
+    Map<String, String> getBpmnErrors();
 
-  String getSubFunctionName();
+    String getSubFunctionName();
 
-  String getSubFunctionDescription();
+    String getSubFunctionDescription();
 
-  String getSubFunctionType();
+    String getSubFunctionType();
 
 }
