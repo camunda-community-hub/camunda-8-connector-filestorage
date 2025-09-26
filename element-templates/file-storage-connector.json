@@ -623,9 +623,6 @@
       },
       "group": "Output"
     },
-
-
-
     {
       "id": "nbFilesProcessed_optional",
       "label": "Saved Nb files processed?",
@@ -667,9 +664,6 @@
       },
       "group": "Output"
     },
-
-
-
     {
       "condition": {
         "property": "fileStorageFunction",
