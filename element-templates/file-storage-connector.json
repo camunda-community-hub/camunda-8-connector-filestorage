@@ -253,7 +253,7 @@
         ],
         "property": "fileStorageFunction"
       },
-      "description": "How to save the FileVariable. JSON to save in the engine (size is linited), TEMPFOLDER to use the temporary folder of THIS machineFOLDER to specify a folder to save it (to be accessible by multiple machine if you ruin it in a clusterCMIS to specify a CMIS connection",
+      "description": "How to saved the FileVariable. JSON to save in the engine (size is linited), TEMPFOLDER to use the temporary folder of THIS machineFOLDER to specify a folder to save it (to be accessible by multiple machine if you ruin it in a clusterCMIS to specify a CMIS connection",
       "binding": {
         "name": "storageDefinition",
         "type": "zeebe:input"
@@ -449,7 +449,7 @@
         "type": "zeebe:input"
       },
       "id": "fileName_optional",
-      "label": "Save File name?",
+      "label": "Saved File name?",
       "type": "Dropdown",
       "choices": [
         {
@@ -470,6 +470,7 @@
         "equals": "true"
       },
       "description": "Name of the file",
+      "feel": "optional",
       "binding": {
         "source": "\u003d result.fileName",
         "type": "zeebe:output"
@@ -495,7 +496,7 @@
         "type": "zeebe:input"
       },
       "id": "fileMimeTypeLoaded_optional",
-      "label": "Save File Mime type?",
+      "label": "Saved File Mime type?",
       "type": "Dropdown",
       "choices": [
         {
@@ -529,9 +530,6 @@
       },
       "group": "Output"
     },
-
-
-
     {
       "description": "Number of files processed. May be 1 or 0 (no file found)",
       "binding": {
@@ -539,7 +537,7 @@
         "type": "zeebe:input"
       },
       "id": "nbFilesProcessed_optional",
-      "label": "Save Nb files processed?",
+      "label": "Saved Nb files processed?",
       "type": "Dropdown",
       "choices": [
         {
@@ -560,6 +558,7 @@
         "equals": "true"
       },
       "description": "Number of files processed. May be 1 or 0 (no file found)",
+      "feel": "optional",
       "binding": {
         "source": "\u003d result.nbFilesProcessed",
         "type": "zeebe:output"
@@ -572,9 +571,6 @@
       },
       "group": "Output"
     },
-
-
-
     {
       "condition": {
         "oneOf": [
@@ -589,7 +585,17 @@
       },
       "id": "fileIsDownloaded",
       "label": "File downloaded",
-      "type": "String",
+      "choices": [
+        {
+          "value": "true",
+          "name": "Yes"
+        },
+        {
+          "value": "false",
+          "name": "No"
+        }
+      ],
+      "type": "Dropdown",
       "constraints": {
         "notEmpty": true
       },
@@ -609,7 +615,17 @@
       },
       "id": "fileIsPurged",
       "label": "File purged",
-      "type": "String",
+      "choices": [
+        {
+          "value": "true",
+          "name": "Yes"
+        },
+        {
+          "value": "false",
+          "name": "No"
+        }
+      ],
+      "type": "Dropdown",
       "constraints": {
         "notEmpty": true
       },
