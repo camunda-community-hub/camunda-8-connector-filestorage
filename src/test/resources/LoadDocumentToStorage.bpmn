@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_16dsg36" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.30.0" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.6.0">
+  <bpmn:process id="LoadDocumentToStorage" name="LoadDocumentToStorage" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_0ftlbp2</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_0ftlbp2" sourceRef="StartEvent_1" targetRef="Activity_06grp6f" />
+    <bpmn:sequenceFlow id="Flow_146qtq7" sourceRef="Activity_06grp6f" targetRef="Activity_197yh9i" />
+    <bpmn:endEvent id="Event_1rhi5dy">
+      <bpmn:incoming>Flow_015a9wp</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_015a9wp" sourceRef="Activity_197yh9i" targetRef="Event_1rhi5dy" />
+    <bpmn:userTask id="Activity_197yh9i" name="Review link">
+      <bpmn:incoming>Flow_146qtq7</bpmn:incoming>
+      <bpmn:outgoing>Flow_015a9wp</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Activity_06grp6f" name="Load to storage">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="c-filestorage" />
+        <zeebe:ioMapping>
+          <zeebe:input source="upload" target="fileStorageFunction" />
+          <zeebe:input target="folderToRead" />
+          <zeebe:input source="false" target="fileName_optional" />
+          <zeebe:input source="false" target="filterFile_optional" />
+          <zeebe:input source="UNCHANGE" target="policy" />
+          <zeebe:input source="JSON" target="storageDefinition" />
+          <zeebe:input source="false" target="fileMimeTypeLoaded_optional" />
+          <zeebe:input source="false" target="nbFilesProcessed_optional" />
+          <zeebe:output source="= result.fileLoaded" />
+        </zeebe:ioMapping>
+        <zeebe:taskHeaders>
+          <zeebe:header key="resultVariable" value="result" />
+          <zeebe:header key="errorExpression" value="if is defined(error) then bpmnError(error.code, error.message) else null" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0ftlbp2</bpmn:incoming>
+      <bpmn:outgoing>Flow_146qtq7</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_0a8ki32" name="Load to 2 storage">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="c-filestorage" />
+        <zeebe:ioMapping>
+          <zeebe:input source="upload" target="fileStorageFunction" />
+          <zeebe:input target="folderToRead" />
+          <zeebe:input source="false" target="fileName_optional" />
+          <zeebe:input source="false" target="filterFile_optional" />
+          <zeebe:input source="UNCHANGE" target="policy" />
+          <zeebe:input source="JSON" target="storageDefinition" />
+          <zeebe:input source="false" target="fileMimeTypeLoaded_optional" />
+          <zeebe:input source="false" target="nbFilesProcessed_optional" />
+          <zeebe:output source="= result.fileLoaded" />
+        </zeebe:ioMapping>
+        <zeebe:taskHeaders>
+          <zeebe:header key="resultVariable" value="result" />
+          <zeebe:header key="errorExpression" value="if is defined(error) then bpmnError(error.code, error.message) else null" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="LoadDocumentToStorage">
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="182" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1rhi5dy_di" bpmnElement="Event_1rhi5dy">
+        <dc:Bounds x="592" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0epkt1c_di" bpmnElement="Activity_197yh9i">
+        <dc:Bounds x="430" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0y9xln9_di" bpmnElement="Activity_06grp6f">
+        <dc:Bounds x="270" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0a8xng2" bpmnElement="Activity_0a8ki32">
+        <dc:Bounds x="270" y="200" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0ftlbp2_di" bpmnElement="Flow_0ftlbp2">
+        <di:waypoint x="218" y="120" />
+        <di:waypoint x="270" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_015a9wp_di" bpmnElement="Flow_015a9wp">
+        <di:waypoint x="530" y="120" />
+        <di:waypoint x="592" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_146qtq7_di" bpmnElement="Flow_146qtq7">
+        <di:waypoint x="370" y="120" />
+        <di:waypoint x="430" y="120" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

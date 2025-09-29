@@ -1,0 +1,70 @@
+{
+  "components": [
+    {
+      "text": "# File copied",
+      "type": "text",
+      "layout": {
+        "row": "Row_064pdh0",
+        "columns": null
+      },
+      "id": "Field_02e8wne"
+    },
+    {
+      "label": "Upload a new file",
+      "type": "filepicker",
+      "layout": {
+        "row": "Row_17cyz84",
+        "columns": null
+      },
+      "id": "Field_0j5c42n",
+      "key": "fileUploadedByUser"
+    },
+    {
+      "label": "Document preview",
+      "type": "documentPreview",
+      "layout": {
+        "row": "Row_16phffk",
+        "columns": null
+      },
+      "id": "Field_0fqpsym",
+      "dataSource": "=fileOneWidget"
+    },
+    {
+      "text": "File one: {{fileOneWidget}}",
+      "type": "text",
+      "layout": {
+        "row": "Row_16phffk",
+        "columns": null
+      },
+      "id": "Field_19p2jjr"
+    },
+    {
+      "label": "Document preview",
+      "type": "documentPreview",
+      "layout": {
+        "row": "Row_0oxt5l4",
+        "columns": null
+      },
+      "id": "Field_0oixs95",
+      "dataSource": "=fileTwoWidget"
+    },
+    {
+      "text": "File two: {{fileTwoWidget}}",
+      "type": "text",
+      "layout": {
+        "row": "Row_0oxt5l4",
+        "columns": null
+      },
+      "id": "Field_17i6fmm"
+    }
+  ],
+  "type": "default",
+  "id": "FileStorageDocumentHandlingForm",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.7.0",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.39.0"
+  },
+  "schemaVersion": 19
+}
