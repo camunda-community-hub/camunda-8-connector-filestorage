@@ -11,6 +11,7 @@
   <!-- 1.0.0 First version -->
   <!-- 1.0.1 Remove FileRunnerParameter  -->
   <!-- 1.1.0 Using FileStorage 2.1.1 with document handling / Add CopyFile function -->
+  <!-- 1.2.0 Using Filestoreae 2.2.0 and redifinind input -->
   <version>1.1.0</version>
 
 

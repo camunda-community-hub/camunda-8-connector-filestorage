@@ -23,7 +23,7 @@ The first parameter give the function (upload, download, delete). Other depends 
 # Storage definition
 
 Check the library https://github.com/camunda-community-hub/zebee-filestorage
-Multiple storage are accessible (local folder, CMIS). The storage defintion give information to
+Multiple storages are accessible (local folder, CMIS). The storage definition gives information to
 connect to the repository.
 Then, additional information may be asked: if the repository is a folder, then the path to the
 folder is required. For a CMIS repository, access to this repository is needed.

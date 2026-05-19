@@ -1,5 +1,6 @@
 package io.camunda.connector.filestorage;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.camunda.connector.api.error.ConnectorException;
 import io.camunda.connector.cherrytemplate.CherryInput;
@@ -109,7 +110,8 @@ public class FileStorageInput implements CherryInput {
         return maximumFilesToProcess;
     }
 
-    //* if jsonStorageDefinition is provided, return it, else compose it from the storage + Folder qnd CMIS complement
+    // if jsonStorageDefinition is provided, return it, else compose it from the storage + Folder qnd CMIS complement
+    @JsonIgnore
     public String getCompleteStorageDefinition() {
         if (jsonStorageDefinition == null || jsonStorageDefinition.isEmpty()) {
             return storageDefinition;
@@ -117,9 +119,6 @@ public class FileStorageInput implements CherryInput {
         return jsonStorageDefinition;
     }
 
-    public String getDestCompleteStorageDefinition() {
-        return "";
-    }
 
     public String getArchiveFolder() {
         return archiveFolder;
@@ -129,6 +128,7 @@ public class FileStorageInput implements CherryInput {
         return jsonStorageDefinition;
     }
 
+    @JsonIgnore
     public boolean isJsonStorageDefinition() {
         return jsonStorageDefinition != null && !jsonStorageDefinition.trim().isEmpty();
     }
@@ -140,6 +140,7 @@ public class FileStorageInput implements CherryInput {
      * @return the storage definition
      * @throws ConnectorException if the connection
      */
+    @JsonIgnore
     public StorageDefinition getStorageDefinitionObject() throws ConnectorException {
         try {
             StorageDefinition storageDefinition = StorageDefinition.getFromString(isJsonStorageDefinition() ?
@@ -159,6 +160,7 @@ public class FileStorageInput implements CherryInput {
     }
 
     @Override
+    @JsonIgnore
     public List<Map<String, Object>> getInputParameters() {
         return ParameterToolbox.getInputParameters();
     }
