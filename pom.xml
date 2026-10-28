@@ -4,15 +4,16 @@
 
   <name>FileStorage</name>
   <description>File Storage connector</description>
-  <groupId>io.camunda.connector</groupId>
-  <artifactId>filestorage</artifactId>
+  <groupId>org.camunda.connector</groupId>
+  <artifactId>connector-filestorage</artifactId>
   <packaging>jar</packaging>
 
   <!-- 1.0.0 First version -->
   <!-- 1.0.1 Remove FileRunnerParameter  -->
   <!-- 1.1.0 Using FileStorage 2.1.1 with document handling / Add CopyFile function -->
-  <!-- 1.2.0 Using Filestoreae 2.2.0 and redifinind input -->
-  <version>1.1.0</version>
+  <!-- 1.2.0 Using Filestorage 2.2.0 and redifinind input -->
+  <!-- 1.3.0 Rename attefactId and publish on JFrog -->
+  <version>1.3.0</version>
 
 
   <properties>
@@ -35,6 +36,15 @@
     <java.version>21</java.version>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
+    <!-- maven plugins -->
+    <plugin.version.maven-clean-plugin>3.3.2</plugin.version.maven-clean-plugin>
+    <plugin.version.maven-compiler-plugin>3.13.0</plugin.version.maven-compiler-plugin>
+    <plugin.version.maven-dependency-plugin>3.6.1</plugin.version.maven-dependency-plugin>
+    <plugin.version.maven-install-plugin>3.1.1</plugin.version.maven-install-plugin>
+    <plugin.version.maven-jar-plugin>3.3.0</plugin.version.maven-jar-plugin>
+    <plugin.version.maven-resources-plugin>3.3.1</plugin.version.maven-resources-plugin>
+    <plugin.version.maven-shade-plugin>3.5.2</plugin.version.maven-shade-plugin>
+    <plugin.version.maven-surefire-plugin>3.2.5</plugin.version.maven-surefire-plugin>
   </properties>
 
   <parent>
@@ -121,26 +131,138 @@
   </dependencies>
 
   <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>${plugin.version.maven-clean-plugin}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>${plugin.version.maven-dependency-plugin}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>${plugin.version.maven-resources-plugin}</version>
+          <executions>
+            <execution>
+              <id>copy-resources</id>
+              <phase>install</phase>
+              <goals>
+                <goal>copy-resources</goal>
+              </goals>
+              <configuration>
+                <outputDirectory>${basedir}/target/element-templates</outputDirectory>
+                <resources>
+                  <resource>
+                    <directory>element-templates</directory>
+                  </resource>
+                </resources>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${plugin.version.maven-compiler-plugin}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>${plugin.version.maven-jar-plugin}</version>
+          <configuration>
+            <useDefaultManifestFile>false</useDefaultManifestFile>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-install-plugin</artifactId>
+          <version>${plugin.version.maven-install-plugin}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>${plugin.version.maven-shade-plugin}</version>
+          <configuration>
+            <!-- no need for this since we are not consuming this artifact downstream -->
+            <createDependencyReducedPom>false</createDependencyReducedPom>
+            <filters>
+              <filter>
+                <artifact>*:*</artifact>
+                <excludes>
+                  <exclude>module-info.class</exclude>
+                  <exclude>META-INF/MANIFEST.MF</exclude>
+                  <exclude>META-INF/*.SF</exclude>
+                  <exclude>META-INF/*.DSA</exclude>
+                  <exclude>META-INF/*.RSA</exclude>
+                </excludes>
+              </filter>
+            </filters>
+            <transformers>
+              <!-- Needed for dependencies that use the Service Loader -->
+              <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+              <!-- Avoids repeating licenses in META-INF -->
+              <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer" />
+              <!-- Merges NOTICE files -->
+              <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer" />
+              <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer" />
+            </transformers>
+          </configuration>
+          <executions>
+            <!-- "with-dependencies": the connector and every runtime dependency in one jar.
+                 shadedArtifactAttached stays true so the plain jar is kept as the main artifact. -->
+            <execution>
+              <id>with-dependencies</id>
+              <phase>package</phase>
+              <goals>
+                <goal>shade</goal>
+              </goals>
+              <configuration>
+                <shadedClassifierName>with-dependencies</shadedClassifierName>
+                <shadedArtifactAttached>true</shadedArtifactAttached>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${plugin.version.maven-surefire-plugin}</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
     <plugins>
+      <!-- spring-boot-starter-parent binds spring-boot-maven-plugin repackage to package, which turns the plain jar into a fat jar. Disable it so the plain jar keeps only this project's classes. -->
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>repackage</id>
+            <phase>none</phase>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
         <executions>
+          <!-- spring-boot-starter-parent pre-configures an unnamed "default" shade execution on package, which would replace the plain jar with a fat jar. Disable it. -->
           <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
+            <id>default</id>
+            <phase>none</phase>
           </execution>
         </executions>
       </plugin>
-
     </plugins>
   </build>
 
   <repositories>
-
-
     <repository>
       <releases>
         <enabled>true</enabled>
@@ -165,7 +287,17 @@
       <url>https://artifacts.camunda.com/artifactory/connectors-snapshots/</url>
     </repository>
 
-
+    <repository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>camunda-community</id>
+      <name>Camunda Community</name>
+      <url>https://artifacts.camunda.com/artifactory/camunda-bpm-community-extensions/</url>
+    </repository>
   </repositories>
 
   <pluginRepositories>
@@ -182,5 +314,34 @@
     </pluginRepository>
   </pluginRepositories>
 
+  <profiles>
+    <!-- Used by .github/workflows/deploy-artifactory-camunda.yml ("mvn -P deploy-jfrog deploy") to publish to the
+         Camunda Artifactory repo (camunda-bpm-community-extensions), and only there. The parent pom turns
+         maven-deploy-plugin off, so a plain "mvn deploy" stays a no-op. This profile turns it back on.
+         It needs a <server id="camunda-nexus"> entry in settings.xml with valid credentials. -->
+    <profile>
+      <id>deploy-jfrog</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <configuration>
+              <skip>false</skip>
+            </configuration>
+            <executions>
+              <execution>
+                <id>default-deploy</id>
+                <phase>deploy</phase>
+                <configuration>
+                  <skip>false</skip>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
 </project>
