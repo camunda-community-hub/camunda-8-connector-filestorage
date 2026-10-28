@@ -12,7 +12,7 @@
   <!-- 1.0.1 Remove FileRunnerParameter  -->
   <!-- 1.1.0 Using FileStorage 2.1.1 with document handling / Add CopyFile function -->
   <!-- 1.2.0 Using Filestorage 2.2.0 and redifinind input -->
-  <!-- 1.3.0 Rename attefactId and publish on JFrog -->
+  <!-- 1.3.0 Rename artefactId and publish on JFrog -->
   <version>1.3.0</version>
 
 
